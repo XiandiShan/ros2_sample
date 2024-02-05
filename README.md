@@ -7,11 +7,11 @@ git clone git@github.com:XiandiShan/ros2_sample.git ~/ros2_sample_ws/src/
 cd ~/ros2_sample_ws && colcon build --allow-overriding action_tutorials_cpp action_tutorials_interfaces action_tutorials_py demo_nodes_py
 source ~/ros2_sample_ws/install/setup.bash
 ```
-run action server node
+Run action server node
 ```
 ros2 run action_tutorials_py fibonacci_action_server
 ```
-run client node
+Run client node (Offical)
 ```
 ros2 run action_tutorials_py fibonacci_action_client
 ```
