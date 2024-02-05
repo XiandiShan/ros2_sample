@@ -32,7 +32,7 @@ setup(
             'fibonacci_action_server = action_tutorials_py.fibonacci_action_server:main',
             'fibonacci_action_client = action_tutorials_py.fibonacci_action_client:main',
             'fibonacci_action_client_node = action_tutorials_py.fibonacci_action_client_node:main',
-            'action_test = action_tutorials_py.main:main',
+            'action_test = action_tutorials_py.action_test:main',
         ],
     },
 )
