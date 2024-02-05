@@ -1,6 +1,7 @@
 # ros2_sample
 
 ## Usage
+(Just an example for building)
 ```
 mkdir ~/ros2_sample_ws/src
 git clone git@github.com:XiandiShan/ros2_sample.git ~/ros2_sample_ws/src/
