@@ -11,6 +11,10 @@ Run action server node
 ```
 ros2 run action_tutorials_py fibonacci_action_server
 ```
+Run client (Using spin future)
+```
+ros2 run action_tutorials_py action_test
+```
 Run client node (Offical)
 ```
 ros2 run action_tutorials_py fibonacci_action_client
