@@ -24,8 +24,8 @@ from rclpy.executors import MultiThreadedExecutor
 class FibonacciActionClient(Node):
 
     def __init__(self):
-        super().__init__('fibonacci_action_client')
-        self._action_client = ActionClient(self, Fibonacci, 'fibonacci')
+        super().__init__('another_fibonacci_cient')
+        self._action_client = ActionClient(self, Fibonacci, 'another_fibonacci')
 
     def send_goal(self, order):
         goal_msg = Fibonacci.Goal()
@@ -53,6 +53,7 @@ class FibonacciActionClient(Node):
         rclpy.spin_until_future_complete(self, future, MultiThreadedExecutor())
         result = future.result().result
         self.get_logger().info('Result: {0}'.format(result.sequence))
+
 
     # def send_goal(self, order):
     #     goal_msg = Fibonacci.Goal()

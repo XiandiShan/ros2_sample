@@ -19,13 +19,14 @@ import rclpy
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
+from rclpy.callback_groups import ReentrantCallbackGroup
 
 
-class FibonacciActionClient(Node):
+class SecondClient(Node):
 
     def __init__(self):
-        super().__init__('fibonacci_action_client')
-        self._action_client = ActionClient(self, Fibonacci, 'fibonacci')
+        super().__init__('second_fibonacci_client')
+        self._action_client = ActionClient(self, Fibonacci, 'second_fibonacci', callback_group=ReentrantCallbackGroup())
 
     def send_goal(self, order):
         goal_msg = Fibonacci.Goal()
@@ -35,8 +36,7 @@ class FibonacciActionClient(Node):
         self._action_client.wait_for_server()
 
         future = self._action_client.send_goal_async(
-            goal_msg,
-            feedback_callback=self.feedback_callback)
+            goal_msg)
         
         rclpy.spin_until_future_complete(self, future, MultiThreadedExecutor())
 
@@ -54,62 +54,14 @@ class FibonacciActionClient(Node):
         result = future.result().result
         self.get_logger().info('Result: {0}'.format(result.sequence))
 
-    # def send_goal(self, order):
-    #     goal_msg = Fibonacci.Goal()
-    #     goal_msg.order = order
-    #     self.execution_finished = False
-
-    #     self._action_client.wait_for_server()
-
-    #     self._send_goal_future = self._action_client.send_goal_async(
-    #         goal_msg,
-    #         feedback_callback=self.feedback_callback)
-
-    #     self._send_goal_future.add_done_callback(self.goal_response_callback)
-    #     self.rate = self.create_rate(10)
-
-    def goal_response_callback(self, future):
-        goal_handle = future.result()
-
-        if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected :(')
-            return
-
-        self.get_logger().info('Goal accepted :)')
-
-        self._get_result_future = goal_handle.get_result_async()
-
-        self._get_result_future.add_done_callback(self.get_result_callback)
-
-    def get_result_callback(self, future):
-        result = future.result().result
-        self.get_logger().info('Result: {0}'.format(result.sequence))
-        self.execution_finished = True
-
-    def feedback_callback(self, feedback_msg):
-        feedback = feedback_msg.feedback
-        self.get_logger().info('Received feedback: {0}'.format(feedback.partial_sequence))
-
-    # def get_result(self):
-    #     self.get_logger().info('Waiting for result')
-    #     while rclpy.ok():
-    #         if self.execution_finished:
-    #             break
-    #         self.rate.sleep()
-    #     self.get_logger().info('Execution finished')
-    
-    def execute(self):
-        future=self.send_goal(10)
-        self.get_result(future)
 
 def main(args=None):
     rclpy.init(args=args)
 
-    action_client = FibonacciActionClient()
+    action_client = SecondClient()
 
     executor = rclpy.executors.MultiThreadedExecutor()
     executor.add_node(action_client)
-    # executor.create_task(action_client.execute)
     future=action_client.send_goal(10)
     action_client.get_result(future)
 

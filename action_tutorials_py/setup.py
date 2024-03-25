@@ -34,6 +34,14 @@ setup(
             'fibonacci_action_client_node = action_tutorials_py.fibonacci_action_client_node:main',
             'action_test = action_tutorials_py.action_test:main',
             'send_goal_and_get_result = action_tutorials_py.send_goal_and_get_result:main',
+            'simple_server = action_tutorials_py.simple_server:main',
+            'send_goal_to_another_action = action_tutorials_py.send_goal_to_another_action:main',
+
+
+            'first_server = action_tutorials_py.first_server:main',
+            'second_server = action_tutorials_py.second_server:main',
+            'second_client = action_tutorials_py.second_client:main',
+
         ],
     },
 )
