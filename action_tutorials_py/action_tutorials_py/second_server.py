@@ -17,52 +17,53 @@ import time
 
 from action_tutorials_interfaces.action import Fibonacci
 
+
 import rclpy
 from rclpy.action import ActionServer
 from rclpy.node import Node
+from action_tutorials_py.first_client import FirstClient
+
 from demo_nodes_py.services.add_two_ints_client import AddTwoIntsClient
 
 
 
-class FibonacciActionServer(Node):
 
+class SecondServer(Node):
     def __init__(self):
-        super().__init__('fibonacci_action_server')
+        super().__init__('second_fibonacci_action_server')
         self._action_server = ActionServer(
             self,
             Fibonacci,
-            'fibonacci',
+            'second_fibonacci',
             self.execute_callback)
         
-        self.add_two_ints_client = AddTwoIntsClient(self)
+        self.action_client = FirstClient(self)
+        self.add_client = AddTwoIntsClient(self)
+
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
 
-        feedback_msg = Fibonacci.Feedback()
-        feedback_msg.partial_sequence = [0, 1]
+        # future=self.action_client.send_goal(goal_handle.request.order)
+        # self.action_client.get_result(future)
 
-        for i in range(1, goal_handle.request.order):
-            self.add_two_ints_client.call_add_two_ints()
-            feedback_msg.partial_sequence.append(
-                feedback_msg.partial_sequence[i] + feedback_msg.partial_sequence[i-1])
-            self.get_logger().info('Feedback: {0}'.format(feedback_msg.partial_sequence))
-            goal_handle.publish_feedback(feedback_msg)
-            time.sleep(1)
+        self.add_client.call_add_two_ints()
 
         goal_handle.succeed()
 
         result = Fibonacci.Result()
-        result.sequence = feedback_msg.partial_sequence
         return result
+
 
 def main(args=None):
     rclpy.init(args=args)
 
-    fibonacci_action_server = FibonacciActionServer()
+    node = SecondServer()
+    executor = rclpy.executors.MultiThreadedExecutor()
+    executor.add_node(node)
 
     try:
-        rclpy.spin(fibonacci_action_server)
+        executor.spin()
     except KeyboardInterrupt:
         pass
 

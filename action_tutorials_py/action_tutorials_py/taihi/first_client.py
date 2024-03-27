@@ -19,14 +19,13 @@ import rclpy
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
-from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
 
-class SecondClient(Node):
+class FirstClient(Node):
 
     def __init__(self):
-        super().__init__('second_fibonacci_client')
-        self._action_client = ActionClient(self, Fibonacci, 'second_fibonacci', callback_group=ReentrantCallbackGroup())
+        self._action_client = ActionClient(self, Fibonacci, 'first_fibonacci', callback_group=MutuallyExclusiveCallbackGroup())
 
     def send_goal(self, order):
         goal_msg = Fibonacci.Goal()
@@ -38,8 +37,7 @@ class SecondClient(Node):
         future = self._action_client.send_goal_async(
             goal_msg)
         
-        # rclpy.spin_until_future_complete(self, future, MultiThreadedExecutor())
-        self.executor.spin_until_future_complete(future)
+        rclpy.spin_until_future_complete(self, future, MultiThreadedExecutor())
 
         goal_handle = future.result()
         if not goal_handle.accepted:
@@ -51,25 +49,24 @@ class SecondClient(Node):
         return future
     
     def get_result(self, future):
-        # rclpy.spin_until_future_complete(self, future, MultiThreadedExecutor())
-        self.executor.spin_until_future_complete(future)
+        rclpy.spin_until_future_complete(self, future, MultiThreadedExecutor())
         result = future.result().result
         self.get_logger().info('Result: {0}'.format(result.sequence))
 
 
-def main(args=None):
-    rclpy.init(args=args)
+# def main(args=None):
+#     rclpy.init(args=args)
 
-    action_client = SecondClient()
+#     action_client = FibonacciActionClient()
 
-    executor = rclpy.executors.MultiThreadedExecutor()
-    executor.add_node(action_client)
-    future=action_client.send_goal(10)
-    action_client.get_result(future)
+#     executor = rclpy.executors.MultiThreadedExecutor()
+#     executor.add_node(action_client)
+#     future = action_client.send_goal(10)
+#     action_client.get_result(future)
 
-    executor.spin()
+#     executor.spin()
 
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

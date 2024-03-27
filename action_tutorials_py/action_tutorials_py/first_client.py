@@ -22,11 +22,11 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
 
 
-class SecondClient(Node):
+class FirstClient:
 
-    def __init__(self):
-        super().__init__('second_fibonacci_client')
-        self._action_client = ActionClient(self, Fibonacci, 'second_fibonacci', callback_group=ReentrantCallbackGroup())
+    def __init__(self, node):
+        self.node = node
+        self._action_client = ActionClient(self.node, Fibonacci, 'first_fibonacci', callback_group=ReentrantCallbackGroup())
 
     def send_goal(self, order):
         goal_msg = Fibonacci.Goal()
@@ -37,39 +37,19 @@ class SecondClient(Node):
 
         future = self._action_client.send_goal_async(
             goal_msg)
-        
-        # rclpy.spin_until_future_complete(self, future, MultiThreadedExecutor())
-        self.executor.spin_until_future_complete(future)
+        self.node.executor.spin_until_future_complete(future)
 
         goal_handle = future.result()
         if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected :(')
+            self.node.get_logger().info('Goal rejected :(')
             return
-        self.get_logger().info('Goal accepted :)')
+        self.node.get_logger().info('Goal accepted :)')
 
         future = goal_handle.get_result_async()
         return future
     
     def get_result(self, future):
-        # rclpy.spin_until_future_complete(self, future, MultiThreadedExecutor())
-        self.executor.spin_until_future_complete(future)
+        self.node.executor.spin_until_future_complete(future)
+
         result = future.result().result
-        self.get_logger().info('Result: {0}'.format(result.sequence))
-
-
-def main(args=None):
-    rclpy.init(args=args)
-
-    action_client = SecondClient()
-
-    executor = rclpy.executors.MultiThreadedExecutor()
-    executor.add_node(action_client)
-    future=action_client.send_goal(10)
-    action_client.get_result(future)
-
-    executor.spin()
-
-
-
-if __name__ == '__main__':
-    main()
+        self.node.get_logger().info('Result: {0}'.format(result.sequence))

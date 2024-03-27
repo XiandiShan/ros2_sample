@@ -28,9 +28,9 @@ class Ros2ActionTest(Node):
          """
          while rclpy.ok():
             future = self.fibonacci_action_client.send_goal(2)
-            send_goal_thread = threading.Thread(target=self.create_thread, args=(10,))
-            send_goal_thread.start()
-            send_goal_thread.join()
+            # send_goal_thread = threading.Thread(target=self.create_thread, args=(10,))
+            # send_goal_thread.start()
+            # send_goal_thread.join()
             self.fibonacci_action_client.get_result(future)
             self.rate.sleep()
 

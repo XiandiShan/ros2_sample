@@ -31,8 +31,8 @@ class FibonacciActionClientSpinFuture:
         
         future = self._action_client.send_goal_async(
             goal_msg)
-        #self.node.executor.spin_until_future_complete(future)
-        rclpy.spin_until_future_complete(self.node, future, MultiThreadedExecutor())
+        self.node.executor.spin_until_future_complete(future)
+        # rclpy.spin_until_future_complete(self.node, future, MultiThreadedExecutor())
 
         goal_handle = future.result()
         if not goal_handle.accepted:
@@ -44,8 +44,8 @@ class FibonacciActionClientSpinFuture:
         return future
 
     def get_result(self, future):
-        #self.node.executor.spin_until_future_complete(future)
-        rclpy.spin_until_future_complete(self.node, future, MultiThreadedExecutor())
+        self.node.executor.spin_until_future_complete(future)
+        # rclpy.spin_until_future_complete(self.node, future, MultiThreadedExecutor())
         result = future.result().result
         self.node.get_logger().info('Result: {0}'.format(result.sequence))
 

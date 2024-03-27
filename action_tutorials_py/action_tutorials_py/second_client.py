@@ -20,13 +20,15 @@ from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
+import time
 
 
 class SecondClient(Node):
 
     def __init__(self):
         super().__init__('second_fibonacci_client')
-        self._action_client = ActionClient(self, Fibonacci, 'second_fibonacci', callback_group=ReentrantCallbackGroup())
+        self._action_client = ActionClient(self, Fibonacci, 'second_fibonacci')
+        self.rate = self.create_rate(1)
 
     def send_goal(self, order):
         goal_msg = Fibonacci.Goal()
@@ -37,8 +39,6 @@ class SecondClient(Node):
 
         future = self._action_client.send_goal_async(
             goal_msg)
-        
-        # rclpy.spin_until_future_complete(self, future, MultiThreadedExecutor())
         self.executor.spin_until_future_complete(future)
 
         goal_handle = future.result()
@@ -57,6 +57,14 @@ class SecondClient(Node):
         self.get_logger().info('Result: {0}'.format(result.sequence))
 
 
+    def execute(self):
+        while rclpy.ok():
+            future=self.send_goal(10)
+            self.get_result(future)
+            self.get_logger().info('Sleeping for 1 second')
+            self.rate.sleep()
+
+
 def main(args=None):
     rclpy.init(args=args)
 
@@ -64,11 +72,8 @@ def main(args=None):
 
     executor = rclpy.executors.MultiThreadedExecutor()
     executor.add_node(action_client)
-    future=action_client.send_goal(10)
-    action_client.get_result(future)
-
+    executor.create_task(action_client.execute)
     executor.spin()
-
 
 
 if __name__ == '__main__':

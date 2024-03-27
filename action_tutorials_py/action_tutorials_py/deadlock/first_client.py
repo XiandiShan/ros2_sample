@@ -38,7 +38,8 @@ class FirstClient:
         future = self._action_client.send_goal_async(
             goal_msg)
         
-        rclpy.spin_until_future_complete(self.node, future, MultiThreadedExecutor())
+        # rclpy.spin_until_future_complete(self.node, future, MultiThreadedExecutor())
+        self.node.executor.spin_until_future_complete(future)
 
         goal_handle = future.result()
         if not goal_handle.accepted:
@@ -50,7 +51,9 @@ class FirstClient:
         return future
     
     def get_result(self, future):
-        rclpy.spin_until_future_complete(self.node, future, MultiThreadedExecutor())
+        # rclpy.spin_until_future_complete(self.node, future, MultiThreadedExecutor())
+        self.node.executor.spin_until_future_complete(future)
+
         result = future.result().result
         self.node.get_logger().info('Result: {0}'.format(result.sequence))
 
