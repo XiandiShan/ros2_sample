@@ -45,7 +45,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallb
 class AddTwoIntsClient:
     def __init__(self, node):
         self.node = node
-        self.client = self.node.create_client(AddTwoInts, 'add_two_ints')
+        self.client = self.node.create_client(AddTwoInts, 'add_two_ints', callback_group=ReentrantCallbackGroup())
     
     def call_add_two_ints(self):
         while not self.client.wait_for_service(timeout_sec=1.0):
