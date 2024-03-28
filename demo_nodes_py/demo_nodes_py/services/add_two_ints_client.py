@@ -18,50 +18,28 @@ import rclpy
 from rclpy.node import Node
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 
-# class AddTwoIntsClient(Node):
-#     def __init__(self):
-#         super().__init__('add_two_ints_client')
-#         self.client = self.create_client(AddTwoInts, 'add_two_ints')
 
-#     def call_add_two_ints(self):
-#         while not self.client.wait_for_service(timeout_sec=1.0):
-#             self.get_logger().info('service not available, waiting again...')
-#         req = AddTwoInts.Request()
-#         req.a = 2
-#         req.b = 3
-#         future = self.client.call_async(req)
-#         # self.executor.spin_until_future_complete(future)
-#         rclpy.spin_until_future_complete(self, future)
-#         if future.result() is not None:
-#             self.get_logger().info('Result of add_two_ints: %d' % future.result().sum)
-#             res = AddTwoInts.Response()
-#             res.sum = future.result().sum
-#             return res
-#         else:
-#             self.get_logger().error('Exception while calling service: %r' % future.exception())
-#             return None
+class AddTwoIntsClient(Node):
+    def __init__(self):
+        super().__init__('add_two_ints_client')
+        self.client = self.create_client(AddTwoInts, 'add_two_ints')
 
-
-class AddTwoIntsClient:
-    def __init__(self, node):
-        self.node = node
-        self.client = self.node.create_client(AddTwoInts, 'add_two_ints', callback_group=ReentrantCallbackGroup())
-    
     def call_add_two_ints(self):
+
         while not self.client.wait_for_service(timeout_sec=1.0):
-            self.node.get_logger().info('service not available, waiting again...')
+            self.get_logger().info('service not available, waiting again...')
         req = AddTwoInts.Request()
         req.a = 2
         req.b = 3
         future = self.client.call_async(req)
-        self.node.executor.spin_until_future_complete(future)
+        self.executor.spin_until_future_complete(future)
         if future.result() is not None:
-            self.node.get_logger().info('Result of add_two_ints: %d' % future.result().sum)
+            self.get_logger().info('Result of add_two_ints: %d' % future.result().sum)
             res = AddTwoInts.Response()
             res.sum = future.result().sum
             return res
         else:
-            self.node.get_logger().error('Exception while calling service: %r' % future.exception())
+            self.get_logger().error('Exception while calling service: %r' % future.exception())
             return None
 
 

@@ -13,41 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.import time
 
-import time
-
 from action_tutorials_interfaces.action import Fibonacci
-
 
 import rclpy
 from rclpy.action import ActionServer
-from rclpy.node import Node
-from action_tutorials_py.first_client import FirstClient
-
-from demo_nodes_py.services.add_two_ints_client import AddTwoIntsClient
 from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.node import Node
+
+from executor_test.call_service_from_action.service_client import AddTwoIntsClient
 
 
-
-
-class SecondServer(Node):
+class FibonacciActionServer(Node):
     def __init__(self):
-        super().__init__('second_fibonacci_action_server')
+        super().__init__('fibonacci_action_server')
         self._action_server = ActionServer(
             self,
             Fibonacci,
-            'second_fibonacci',
+            'fibonacci',
             self.execute_callback,
             callback_group=ReentrantCallbackGroup())
-        
-        self.action_client = FirstClient(self)
-        self.add_client = AddTwoIntsClient()
+
+        self.add_two_ints_client = AddTwoIntsClient()
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
 
-        # future=self.action_client.send_goal(goal_handle.request.order)
-        # self.action_client.get_result(future)
-        self.add_client.call_add_two_ints()
+        self.add_two_ints_client.call_add_two_ints()
 
         goal_handle.succeed()
 
@@ -58,17 +49,22 @@ class SecondServer(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    node = SecondServer()
-    executor_1 = rclpy.executors.MultiThreadedExecutor()
-    executor_1.add_node(node)
-    executor_2 = rclpy.executors.MultiThreadedExecutor()
-    executor_2.add_node(node.add_client)
+    node = FibonacciActionServer()
+    executor = rclpy.executors.MultiThreadedExecutor()
+    executor.add_node(node)
+
+    # Set executor for client node used in this node
+    client_executor = rclpy.executors.MultiThreadedExecutor()
+    client_executor.add_node(node.add_two_ints_client)
 
     try:
-        executor_1.spin()
-        # executor_2.spin()
+        executor.spin()
+
     except KeyboardInterrupt:
         pass
+
+    finally:
+        executor.shutdown()
 
 
 if __name__ == '__main__':

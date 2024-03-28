@@ -18,16 +18,14 @@ from action_tutorials_interfaces.action import Fibonacci
 import rclpy
 from rclpy.action import ActionClient
 from rclpy.node import Node
-from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
-import time
 
 
-class SecondClient(Node):
+class FibonacciActionClient(Node):
 
     def __init__(self):
-        super().__init__('second_fibonacci_client')
-        self._action_client = ActionClient(self, Fibonacci, 'second_fibonacci', callback_group=ReentrantCallbackGroup())
+        super().__init__('fibonacci_client')
+        self._action_client = ActionClient(self, Fibonacci, 'fibonacci', callback_group=ReentrantCallbackGroup())
         self.rate = self.create_rate(1)
 
     def send_goal(self, order):
@@ -40,7 +38,6 @@ class SecondClient(Node):
         future = self._action_client.send_goal_async(
             goal_msg)
         self.executor.spin_until_future_complete(future)
-        # rclpy.spin_until_future_complete(self, future)
 
         goal_handle = future.result()
         if not goal_handle.accepted:
@@ -52,7 +49,7 @@ class SecondClient(Node):
         return future
     
     def get_result(self, future):
-        # rclpy.spin_until_future_complete(self, future)
+
         self.executor.spin_until_future_complete(future)
         result = future.result().result
         self.get_logger().info('Result: {0}'.format(result.sequence))
@@ -60,10 +57,15 @@ class SecondClient(Node):
 
     def execute(self):
         while rclpy.ok():
-            future1=self.send_goal(10)
-            future2=self.send_goal(10)
-            self.get_result(future1)
-            self.get_result(future2)
+            future = self.send_goal(10)
+            self.get_result(future)
+
+            # 以下のようなコードを実行すると、AddTwoIntsClientのcallback_groupを指定すべき
+            # future_1 = self.send_goal(10)
+            # future_2 = self.send_goal(10)
+            # self.get_result(future_1)
+            # self.get_result(future_2)
+
             self.get_logger().info('Sleeping for 1 second')
             self.rate.sleep()
 
@@ -71,7 +73,7 @@ class SecondClient(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    action_client = SecondClient()
+    action_client = FibonacciActionClient()
 
     executor = rclpy.executors.MultiThreadedExecutor()
     executor.add_node(action_client)
