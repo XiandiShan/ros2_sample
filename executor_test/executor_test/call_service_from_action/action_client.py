@@ -24,7 +24,8 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 class FibonacciActionClient(Node):
 
     def __init__(self):
-        super().__init__('fibonacci_client')
+        node_name = 'fibonacci_client' + '_' + str(id(self))
+        super().__init__(node_name)
         self._action_client = ActionClient(self, Fibonacci, 'fibonacci', callback_group=ReentrantCallbackGroup())
         self.rate = self.create_rate(1)
 
@@ -76,6 +77,7 @@ def main(args=None):
     action_client = FibonacciActionClient()
 
     executor = rclpy.executors.MultiThreadedExecutor()
+
     executor.add_node(action_client)
     executor.create_task(action_client.execute)
     executor.spin()

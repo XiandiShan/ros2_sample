@@ -33,12 +33,14 @@ class FibonacciActionServer(Node):
             self.execute_callback,
             callback_group=ReentrantCallbackGroup())
 
-        self.add_two_ints_client = AddTwoIntsClient()
+        self.add_two_ints_client_1 = AddTwoIntsClient()
+        self.add_two_ints_client_2 = AddTwoIntsClient()
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Executing goal...')
 
-        self.add_two_ints_client.call_add_two_ints()
+        self.add_two_ints_client_1.call_add_two_ints()
+        self.add_two_ints_client_2.call_add_two_ints()
 
         goal_handle.succeed()
 
@@ -54,8 +56,13 @@ def main(args=None):
     executor.add_node(node)
 
     # Set executor for client node used in this node
-    client_executor = rclpy.executors.MultiThreadedExecutor()
-    client_executor.add_node(node.add_two_ints_client)
+    client_executor_1 = rclpy.executors.MultiThreadedExecutor()
+    client_executor_1.add_node(node.add_two_ints_client_1)
+
+    # Set executor for client node used in this node
+    client_executor_2 = rclpy.executors.MultiThreadedExecutor()
+    client_executor_2.add_node(node.add_two_ints_client_2)
+
 
     try:
         executor.spin()

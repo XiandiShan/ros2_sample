@@ -19,8 +19,9 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 
 class AddTwoIntsClient(Node):
     def __init__(self):
-        super().__init__('add_two_ints_client')
-        self.client = self.create_client(AddTwoInts, 'add_two_ints')
+        node_name = 'add_two_ints_client' + '_' + str(id(self))
+        super().__init__(node_name)
+        self.client = self.create_client(AddTwoInts, 'add_two_ints', callback_group=ReentrantCallbackGroup())
 
     def call_add_two_ints(self):
 
